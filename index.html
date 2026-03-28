@@ -127,7 +127,7 @@
             padding-top: 100px;
             position: relative;
         }
-        .hero-content { max-width: 800px; }
+        .hero-content { max-width: 640px; position: relative; z-index: 2; }
         .hero-badge {
             display: inline-flex;
             align-items: center;
@@ -208,14 +208,17 @@
         /* Hero floating cards */
         .hero-visual {
             position: absolute;
-            right: -40px;
+            right: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 400px;
+            width: 340px;
             display: none;
+            z-index: 1;
         }
         @media(min-width: 1100px) {
             .hero-visual { display: block; }
+            .hero .container { display: flex; align-items: center; justify-content: space-between; }
+            .hero-visual { position: relative; right: auto; top: auto; transform: none; flex-shrink: 0; }
         }
         .float-card {
             background: var(--dark-card);
@@ -985,33 +988,35 @@
     <div class="container">
         <div class="section-label">&#129504; Технология</div>
         <h2 class="section-title">Нейросети &mdash; суперсила<br>каждой команды</h2>
-        <p class="section-desc" style="margin-bottom: 0;">Участнику не нужно уметь программировать. ИИ превращает описание задачи на обычном языке в рабочий код.</p>
+        <p class="section-desc" style="margin-bottom: 0;">Участнику не нужно уметь программировать. Но это не значит, что всё делается &laquo;одной кнопкой&raquo;. Это полноценная работа &mdash; три часа обучения, экспериментов и доработок.</p>
 
         <div class="ai-section">
             <div class="ai-grid">
                 <div>
-                    <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 16px;">Как это работает</h3>
+                    <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 16px;">Чему участники учатся за 3 часа</h3>
                     <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem;">
-                        Мы обучаем работе с интерфейсом нейросети, простым промптам и командам, показываем как работает терминал. Участник описывает задачи на обычном языке &mdash; ИИ генерирует рабочий код.
+                        Мы обучаем работе с терминалом, интерфейсом нейросети, промптам и командам. Участники формулируют задачи, тестируют гипотезы, меняют код, исправляют ошибки и шаг за шагом собирают рабочий продукт.
                     </p>
                     <p style="color: var(--text-muted); font-size: 0.95rem;">
-                        Навык формулировать задачи для ИИ остаётся с каждым участником и после мероприятия. Это не просто тимбилдинг &mdash; это инвестиция в цифровые навыки вашей команды.
+                        Это итеративный процесс: написал &rarr; проверил &rarr; доработал &rarr; снова проверил. Именно так работает реальная разработка. Навык формулировать задачи для ИИ и управлять процессом создания остаётся с каждым участником после мероприятия.
                     </p>
                 </div>
-                <div class="ai-terminal">
-                    <div class="ai-terminal-bar">
-                        <div class="ai-terminal-dot"></div>
-                        <div class="ai-terminal-dot"></div>
-                        <div class="ai-terminal-dot"></div>
+                <div>
+                    <div class="result-item" style="margin-bottom: 16px;">
+                        <div class="result-check">1</div>
+                        <p><strong>Изучают терминал и команды</strong> &mdash; как запустить нейросеть, как формулировать задачи, как читать результат</p>
                     </div>
-                    <div class="ai-terminal-body">
-                        <div><span class="prompt">$</span> <span class="cmd">Создай калькулятор смет</span></div>
-                        <div><span class="prompt">$</span> <span class="cmd">с полями: площадка, кейтеринг,</span></div>
-                        <div><span class="prompt">$</span> <span class="cmd">декор, техника, персонал</span></div>
-                        <div style="margin-top: 12px;"><span class="output">&#9881; Генерирую интерфейс...</span></div>
-                        <div><span class="output">&#9881; Добавляю логику расчёта...</span></div>
-                        <div><span class="output">&#9881; Подключаю стили...</span></div>
-                        <div style="margin-top: 12px;"><span class="success">&#10003; Готово! Сервис запущен &#128279;</span></div>
+                    <div class="result-item" style="margin-bottom: 16px;">
+                        <div class="result-check">2</div>
+                        <p><strong>Тестируют гипотезы</strong> &mdash; пробуют разные подходы, сравнивают результаты, выбирают лучший</p>
+                    </div>
+                    <div class="result-item" style="margin-bottom: 16px;">
+                        <div class="result-check">3</div>
+                        <p><strong>Дорабатывают и меняют код</strong> &mdash; исправляют ошибки, добавляют функции, улучшают интерфейс</p>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-check">4</div>
+                        <p><strong>Собирают готовый продукт</strong> &mdash; через десятки итераций получают рабочий сервис</p>
                     </div>
                 </div>
             </div>
