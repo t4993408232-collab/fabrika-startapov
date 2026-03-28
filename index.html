@@ -53,16 +53,17 @@
         /* ===== CURSOR GLOW ===== */
         .cursor-glow {
             position: fixed;
+            top: 0;
+            left: 0;
             width: 400px;
             height: 400px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(108,92,231,0.12) 0%, rgba(0,210,211,0.06) 40%, transparent 70%);
+            background: radial-gradient(circle, rgba(108,92,231,0.1) 0%, rgba(0,210,211,0.04) 40%, transparent 70%);
             pointer-events: none;
             z-index: 1;
-            transform: translate(-50%, -50%);
+            will-change: transform;
             transition: opacity 0.3s;
             opacity: 0;
-            mix-blend-mode: screen;
         }
         .cursor-glow.active { opacity: 1; }
 
@@ -494,24 +495,12 @@
         .why-card, .role-card, .product-card, .who-card {
             position: relative;
             overflow: hidden;
+            will-change: transform;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .why-card::after, .role-card::after, .product-card::after, .who-card::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: inherit;
-            background: conic-gradient(from var(--card-glow-angle, 0deg), var(--primary), var(--accent), var(--primary-light), var(--accent-light), var(--primary));
-            opacity: 0;
-            z-index: -1;
-            transition: opacity 0.4s ease;
-        }
-        .why-card:hover::after, .role-card:hover::after, .product-card:hover::after, .who-card:hover::after {
-            opacity: 0.4;
-            animation: cardGlowRotate 3s linear infinite;
-        }
-        @keyframes cardGlowRotate {
-            from { filter: hue-rotate(0deg); }
-            to { filter: hue-rotate(360deg); }
+        .why-card:hover, .role-card:hover, .product-card:hover, .who-card:hover {
+            border-color: rgba(108,92,231,0.4);
+            box-shadow: 0 0 30px rgba(108,92,231,0.1), 0 20px 60px rgba(0,0,0,0.2);
         }
 
         /* ===== TIMELINE ===== */
@@ -1674,25 +1663,27 @@ window.addEventListener('scroll', () => {
     lastScroll = scroll;
 });
 
-// ===== INTERACTIVE PARTICLE NETWORK =====
+// ===== INTERACTIVE PARTICLE NETWORK (OPTIMIZED) =====
 (function() {
     const canvas = document.getElementById('particles');
     const ctx = canvas.getContext('2d');
     let particles = [];
-    const PARTICLE_COUNT = 60;
-    const CONNECT_DIST = 160;
-    const MOUSE_RADIUS = 200;
-    const MOUSE_FORCE = 0.02;
+    const PARTICLE_COUNT = 30;
+    const CONNECT_DIST = 130;
+    const MOUSE_RADIUS = 180;
     let mouse = { x: -9999, y: -9999 };
+    let raf;
 
+    // Throttled mousemove
+    let lastMoveTime = 0;
     document.addEventListener('mousemove', e => {
+        const now = performance.now();
+        if (now - lastMoveTime < 16) return; // ~60fps cap
+        lastMoveTime = now;
         mouse.x = e.clientX;
         mouse.y = e.clientY;
     });
-    document.addEventListener('mouseleave', () => {
-        mouse.x = -9999;
-        mouse.y = -9999;
-    });
+    document.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
 
     function resize() {
         canvas.width = window.innerWidth;
@@ -1701,113 +1692,101 @@ window.addEventListener('scroll', () => {
     resize();
     window.addEventListener('resize', resize);
 
-    function createParticle() {
-        return {
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
             vx: (Math.random() - 0.5) * 0.3,
             vy: (Math.random() - 0.5) * 0.3,
-            baseR: Math.random() * 1.5 + 1,
-            r: 0,
-            color: Math.random() > 0.5 ? [108,92,231] : [0,210,211]
-        };
+            r: Math.random() * 1.5 + 1,
+            c: Math.random() > 0.5 ? '108,92,231' : '0,210,211'
+        });
     }
-
-    for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(createParticle());
 
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // Batch lines
+        ctx.lineWidth = 0.5;
         for (let i = 0; i < particles.length; i++) {
             const p = particles[i];
-            // Mouse attraction/interaction
             const dxM = mouse.x - p.x;
             const dyM = mouse.y - p.y;
-            const distM = Math.sqrt(dxM * dxM + dyM * dyM);
+            const distM = dxM * dxM + dyM * dyM; // skip sqrt
+            const MOUSE_R2 = MOUSE_RADIUS * MOUSE_RADIUS;
 
-            if (distM < MOUSE_RADIUS && distM > 0) {
-                const force = (1 - distM / MOUSE_RADIUS) * MOUSE_FORCE;
-                p.vx += dxM / distM * force;
-                p.vy += dyM / distM * force;
-                p.r = p.baseR + (1 - distM / MOUSE_RADIUS) * 3;
-            } else {
-                p.r += (p.baseR - p.r) * 0.05;
+            if (distM < MOUSE_R2 && distM > 0) {
+                const d = Math.sqrt(distM);
+                const force = (1 - d / MOUSE_RADIUS) * 0.015;
+                p.vx += dxM / d * force;
+                p.vy += dyM / d * force;
             }
 
-            // Damping
             p.vx *= 0.99;
             p.vy *= 0.99;
-
             p.x += p.vx;
             p.y += p.vy;
             if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
             if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-            // Draw particle with glow when near mouse
-            const mouseProximity = distM < MOUSE_RADIUS ? (1 - distM / MOUSE_RADIUS) : 0;
-            const alpha = 0.3 + mouseProximity * 0.7;
+            // Draw dot
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${alpha})`;
+            ctx.fillStyle = `rgba(${p.c},0.4)`;
             ctx.fill();
 
-            if (mouseProximity > 0.3) {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r + 4, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${mouseProximity * 0.15})`;
-                ctx.fill();
-            }
-
-            // Connect particles
+            // Connect to nearby particles (only check forward)
+            const CONNECT_R2 = CONNECT_DIST * CONNECT_DIST;
             for (let j = i + 1; j < particles.length; j++) {
                 const p2 = particles[j];
                 const dx = p.x - p2.x;
                 const dy = p.y - p2.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < CONNECT_DIST) {
-                    const opacity = (1 - dist / CONNECT_DIST) * 0.12;
+                const d2 = dx * dx + dy * dy;
+                if (d2 < CONNECT_R2) {
                     ctx.beginPath();
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(p2.x, p2.y);
-                    ctx.strokeStyle = `rgba(108,92,231,${opacity})`;
-                    ctx.lineWidth = 0.5;
+                    ctx.strokeStyle = `rgba(108,92,231,${(1 - Math.sqrt(d2) / CONNECT_DIST) * 0.1})`;
                     ctx.stroke();
                 }
             }
 
-            // Connect to mouse
-            if (distM < MOUSE_RADIUS * 1.5) {
-                const opacity = (1 - distM / (MOUSE_RADIUS * 1.5)) * 0.25;
+            // Connect to mouse (only closest particles)
+            if (distM < MOUSE_R2 * 2) {
+                const d = Math.sqrt(distM);
                 ctx.beginPath();
                 ctx.moveTo(p.x, p.y);
                 ctx.lineTo(mouse.x, mouse.y);
-                ctx.strokeStyle = `rgba(0,210,211,${opacity})`;
-                ctx.lineWidth = 0.8;
+                ctx.strokeStyle = `rgba(0,210,211,${(1 - d / (MOUSE_RADIUS * 1.4)) * 0.2})`;
+                ctx.lineWidth = 0.6;
                 ctx.stroke();
+                ctx.lineWidth = 0.5;
             }
         }
 
-        // Cursor node glow
-        if (mouse.x > 0 && mouse.y > 0) {
+        // Small cursor dot
+        if (mouse.x > 0) {
             ctx.beginPath();
-            ctx.arc(mouse.x, mouse.y, 4, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0,210,211,0.6)';
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(mouse.x, mouse.y, 12, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0,210,211,0.08)';
+            ctx.arc(mouse.x, mouse.y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0,210,211,0.5)';
             ctx.fill();
         }
 
-        requestAnimationFrame(animate);
+        raf = requestAnimationFrame(animate);
     }
     animate();
+
+    // Pause when tab hidden
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) cancelAnimationFrame(raf);
+        else animate();
+    });
 })();
 
-// ===== CURSOR GLOW FOLLOWER =====
+// ===== CURSOR GLOW FOLLOWER (GPU-ACCELERATED) =====
 (function() {
     const glow = document.getElementById('cursorGlow');
-    let gx = 0, gy = 0, tx = 0, ty = 0;
+    let tx = 0, ty = 0;
 
     document.addEventListener('mousemove', e => {
         tx = e.clientX;
@@ -1818,11 +1797,11 @@ window.addEventListener('scroll', () => {
         glow.classList.remove('active');
     });
 
+    let gx = 0, gy = 0;
     function followCursor() {
-        gx += (tx - gx) * 0.08;
-        gy += (ty - gy) * 0.08;
-        glow.style.left = gx + 'px';
-        glow.style.top = gy + 'px';
+        gx += (tx - gx) * 0.1;
+        gy += (ty - gy) * 0.1;
+        glow.style.transform = `translate3d(${gx - 200}px, ${gy - 200}px, 0)`;
         requestAnimationFrame(followCursor);
     }
     followCursor();
