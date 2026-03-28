@@ -17,18 +17,37 @@ app.post('/api/lead', async (req, res) => {
   }
 
   const text = [
-    `Новая заявка с сайта «Фабрика стартапов»`,
+    `📩 Новая заявка с сайта «Фабрика стартапов»`,
     ``,
-    `Имя: ${name}`,
-    company ? `Компания: ${company}` : null,
-    `Телефон: ${phone}`,
-    email ? `E-mail: ${email}` : null,
-    message ? `Комментарий: ${message}` : null,
+    `👤 Имя: ${name}`,
+    company ? `🏢 Компания: ${company}` : null,
+    `📱 Телефон: ${phone}`,
+    email ? `📧 E-mail: ${email}` : null,
+    message ? `💬 Комментарий: ${message}` : null,
     ``,
-    `Дата: ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}`,
+    `🕐 ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}`,
   ].filter(Boolean).join('\n');
 
-  // If SMTP is configured, send email
+  // Send to Telegram bot
+  if (process.env.TG_BOT_TOKEN && process.env.TG_CHAT_ID) {
+    try {
+      const tgUrl = `https://api.telegram.org/bot${process.env.TG_BOT_TOKEN}/sendMessage`;
+      await fetch(tgUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: process.env.TG_CHAT_ID,
+          text,
+          parse_mode: 'HTML',
+        }),
+      });
+      console.log(`[LEAD] Telegram sent — ${name}, ${phone}`);
+    } catch (err) {
+      console.error('[LEAD] Telegram error:', err.message);
+    }
+  }
+
+  // Send email via SMTP if configured
   if (process.env.SMTP_HOST) {
     try {
       const transporter = nodemailer.createTransport({
@@ -45,13 +64,12 @@ app.post('/api/lead', async (req, res) => {
         from: process.env.SMTP_FROM || process.env.SMTP_USER,
         to: 'info@doctorteam.ru',
         subject: `Заявка: ${name}${company ? ' — ' + company : ''}`,
-        text,
+        text: text.replace(/[📩👤🏢📱📧💬🕐]/g, ''),
       });
 
       console.log(`[LEAD] Email sent — ${name}, ${phone}`);
     } catch (err) {
       console.error('[LEAD] Email error:', err.message);
-      // Still return 200 — lead is logged
     }
   }
 
