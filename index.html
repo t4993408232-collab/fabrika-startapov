@@ -39,6 +39,17 @@
             overflow-x: hidden;
         }
 
+        /* ===== PARTICLE CANVAS ===== */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
         /* ===== ANIMATED BACKGROUND ===== */
         .bg-grid {
             position: fixed;
@@ -64,6 +75,57 @@
         .bg-glow-1 { background: var(--primary); top: -200px; right: -200px; }
         .bg-glow-2 { background: var(--accent); bottom: -200px; left: -200px; }
 
+        /* ===== FLOATING GEOMETRIC SHAPES ===== */
+        .geo-shape {
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.07;
+        }
+        .geo-hex {
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--primary-light);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            animation: geoFloat1 12s ease-in-out infinite, geoRotate 20s linear infinite;
+        }
+        .geo-circle {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            animation: geoFloat2 10s ease-in-out infinite, geoRotate 15s linear infinite reverse;
+        }
+        .geo-diamond {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--primary);
+            transform: rotate(45deg);
+            animation: geoFloat1 14s ease-in-out infinite;
+        }
+        .geo-tri {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 43px solid transparent;
+            border-bottom-color: var(--accent-light);
+            opacity: 0.05;
+            animation: geoFloat2 11s ease-in-out infinite, geoRotate 18s linear infinite;
+        }
+        @keyframes geoFloat1 {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+        @keyframes geoFloat2 {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(-5deg); }
+        }
+        @keyframes geoRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         /* ===== LAYOUT ===== */
         .container {
             max-width: 1200px;
@@ -73,7 +135,7 @@
             z-index: 1;
         }
 
-        section { padding: 100px 0; }
+        section { padding: 100px 0; position: relative; }
 
         /* ===== NAV ===== */
         nav {
@@ -129,6 +191,24 @@
             background: linear-gradient(to bottom, rgba(10,10,26,0.3) 0%, rgba(10,10,26,0.5) 70%, var(--dark-bg) 100%),
                         url('img/hero.png') center 20% / cover no-repeat;
         }
+        /* Animated gradient border at bottom of hero */
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary-light), var(--accent-light), var(--primary));
+            background-size: 300% 100%;
+            animation: heroGradientBorder 4s ease-in-out infinite;
+        }
+        @keyframes heroGradientBorder {
+            0% { background-position: 0% 50%; opacity: 0.6; }
+            50% { background-position: 100% 50%; opacity: 1; }
+            100% { background-position: 0% 50%; opacity: 0.6; }
+        }
+
         .hero-content { max-width: 900px; position: relative; z-index: 2; }
         .hero-badge {
             display: inline-flex;
@@ -143,7 +223,6 @@
             color: var(--primary-light);
             margin-bottom: 32px;
         }
-        .hero-badge span { font-size: 1.1em; }
         .hero h1 {
             font-size: clamp(2.5rem, 5.5vw, 4.2rem);
             font-weight: 900;
@@ -155,7 +234,25 @@
             background: var(--gradient-1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
         }
+        /* Shimmer sweep on gradient text */
+        .hero h1 .gradient::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            animation: shimmerSweep 4s ease-in-out infinite;
+        }
+        @keyframes shimmerSweep {
+            0% { left: -100%; }
+            40%, 100% { left: 200%; }
+        }
+
         .hero-sub {
             font-size: 1.2rem;
             color: var(--text-muted);
@@ -226,7 +323,16 @@
         }
         .float-card:nth-child(2) { animation-delay: -2s; }
         .float-card:nth-child(3) { animation-delay: -4s; }
-        .float-card-icon { font-size: 1.8rem; margin-bottom: 8px; }
+        .float-card-icon {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 8px;
+            color: var(--primary-light);
+        }
+        .float-card-icon svg {
+            width: 100%;
+            height: 100%;
+        }
         .float-card-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
         .float-card-desc { font-size: 0.8rem; color: var(--text-muted); }
 
@@ -280,6 +386,9 @@
             line-height: 1.2;
             margin-bottom: 20px;
             letter-spacing: -0.02em;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .section-desc {
             font-size: 1.1rem;
@@ -325,11 +434,36 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.6rem;
             margin-bottom: 20px;
+            color: var(--primary-light);
         }
+        .why-icon svg { width: 28px; height: 28px; }
         .why-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
         .why-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* ===== GLOWING CARD BORDERS ON HOVER ===== */
+        .why-card, .role-card, .product-card, .who-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .why-card::after, .role-card::after, .product-card::after, .who-card::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            background: conic-gradient(from var(--card-glow-angle, 0deg), var(--primary), var(--accent), var(--primary-light), var(--accent-light), var(--primary));
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.4s ease;
+        }
+        .why-card:hover::after, .role-card:hover::after, .product-card:hover::after, .who-card:hover::after {
+            opacity: 0.4;
+            animation: cardGlowRotate 3s linear infinite;
+        }
+        @keyframes cardGlowRotate {
+            from { filter: hue-rotate(0deg); }
+            to { filter: hue-rotate(360deg); }
+        }
 
         /* ===== TIMELINE ===== */
         .timeline {
@@ -345,8 +479,25 @@
             width: 2px;
             background: linear-gradient(to bottom, var(--primary), var(--accent));
         }
+        /* Timeline glow dot */
+        .timeline-glow-dot {
+            position: absolute;
+            left: 28px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            margin-left: -4px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 12px var(--accent), 0 0 24px rgba(0,210,211,0.4);
+            z-index: 2;
+            transition: top 0.15s ease-out;
+            opacity: 0;
+        }
+        .timeline-glow-dot.active { opacity: 1; }
         @media(min-width: 768px) {
             .timeline::before { left: 50%; transform: translateX(-50%); }
+            .timeline-glow-dot { left: 50%; margin-left: -5px; }
         }
         .timeline-item {
             display: flex;
@@ -406,7 +557,16 @@
             transform: translateY(-6px);
             box-shadow: 0 20px 60px rgba(108,92,231,0.15);
         }
-        .role-emoji { font-size: 3rem; margin-bottom: 16px; }
+        .role-emoji {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-light);
+        }
+        .role-emoji svg { width: 48px; height: 48px; }
         .role-name {
             font-size: 1.3rem;
             font-weight: 800;
@@ -461,9 +621,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
             flex-shrink: 0;
+            color: var(--primary-light);
         }
+        .product-icon svg { width: 24px; height: 24px; }
         .product-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
         .product-card p { font-size: 0.85rem; color: var(--text-muted); }
 
@@ -540,7 +701,13 @@
             transition: transform 0.3s;
         }
         .who-card:hover { transform: translateY(-4px); }
-        .who-card-icon { font-size: 2.5rem; margin-bottom: 16px; }
+        .who-card-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            color: var(--primary-light);
+        }
+        .who-card-icon svg { width: 100%; height: 100%; }
         .who-card h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
         .who-card p { font-size: 0.88rem; color: var(--text-muted); }
 
@@ -570,9 +737,8 @@
             justify-content: center;
             flex-shrink: 0;
             color: var(--accent);
-            font-size: 1.1rem;
-            font-weight: 700;
         }
+        .result-check svg { width: 18px; height: 18px; }
         .result-item p { font-size: 0.95rem; }
 
         /* ===== VICTORY ===== */
@@ -691,6 +857,16 @@
             color: var(--text-muted);
             font-size: 0.95rem;
         }
+        .cta-contact-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+        /* ===== AWARD ICON ===== */
+        .award-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 12px;
+            color: var(--primary-light);
+        }
+        .award-icon svg { width: 100%; height: 100%; }
 
         /* ===== FOOTER ===== */
         footer {
@@ -850,6 +1026,7 @@
 </head>
 <body>
 
+<canvas id="particles"></canvas>
 <div class="bg-grid"></div>
 <div class="bg-glow bg-glow-1"></div>
 <div class="bg-glow bg-glow-2"></div>
@@ -863,11 +1040,11 @@
 </nav>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" id="hero-section">
     <div class="container">
         <div class="hero-content">
             <div class="hero-badge">
-                <span>&#9889;</span> Корпоративная программа нового формата
+                Корпоративная программа нового формата
             </div>
             <h1>
                 <span class="gradient">Фабрика стартапов</span><br>
@@ -882,23 +1059,26 @@
             </div>
             <div class="hero-visual">
                 <div class="float-card">
-                    <div class="float-card-icon">&#128187;</div>
+                    <div class="float-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
                     <div class="float-card-title">Калькулятор смет</div>
                     <div class="float-card-desc">Команда &laquo;Финансы&raquo; &middot; 47 открытий</div>
                 </div>
                 <div class="float-card">
-                    <div class="float-card-icon">&#128200;</div>
+                    <div class="float-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
                     <div class="float-card-title">Дашборд аналитики</div>
                     <div class="float-card-desc">Команда &laquo;Маркетинг&raquo; &middot; 52 открытия</div>
                 </div>
                 <div class="float-card">
-                    <div class="float-card-icon">&#129302;</div>
+                    <div class="float-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="16" r="1"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
                     <div class="float-card-title">Бот-напоминалка</div>
                     <div class="float-card-desc">Команда &laquo;Проекты&raquo; &middot; 61 открытие</div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- Floating geometric shapes -->
+    <div class="geo-shape geo-hex" style="top: 15%; right: 8%;"></div>
+    <div class="geo-shape geo-circle" style="bottom: 20%; right: 15%;"></div>
 </section>
 
 <!-- STATS -->
@@ -906,19 +1086,19 @@
     <div class="container">
         <div class="stats-grid">
             <div class="stat-item fade-up">
-                <div class="stat-number">2&ndash;3</div>
+                <div class="stat-number" data-count="2-3">2&ndash;3</div>
                 <div class="stat-label">часа на всю программу</div>
             </div>
             <div class="stat-item fade-up">
-                <div class="stat-number">8&ndash;10</div>
+                <div class="stat-number" data-count="8-10">8&ndash;10</div>
                 <div class="stat-label">человек в команде</div>
             </div>
             <div class="stat-item fade-up">
-                <div class="stat-number">20&ndash;100</div>
+                <div class="stat-number" data-count="20-100">20&ndash;100</div>
                 <div class="stat-label">участников</div>
             </div>
             <div class="stat-item fade-up">
-                <div class="stat-number">100%</div>
+                <div class="stat-number" data-count="100%">100%</div>
                 <div class="stat-label">работающие продукты</div>
             </div>
         </div>
@@ -928,38 +1108,39 @@
 <!-- WHY -->
 <section id="why">
     <div class="container">
-        <div class="section-label">&#9733; Зачем</div>
+        <div class="section-label">Зачем</div>
         <h2 class="section-title">Тимбилдинг, после которого<br>остаётся результат</h2>
         <p class="section-desc">Не фотографии на верёвочном курсе, а работающие сервисы, карта идей сотрудников и навыки работы с ИИ.</p>
         <div class="why-grid">
             <div class="why-card fade-up">
-                <div class="why-icon">&#127919;</div>
+                <div class="why-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></div>
                 <h3>Решают реальные задачи</h3>
                 <p>Сметный калькулятор от одной из команд может сэкономить бухгалтерии часы ручной работы. Это не упражнение ради упражнения.</p>
             </div>
             <div class="why-card fade-up">
-                <div class="why-icon">&#128161;</div>
+                <div class="why-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
                 <h3>Раскрывают сотрудников</h3>
                 <p>Менеджер по продажам оказывается сильным креатором, а аналитик &mdash; отличным презентатором. Вы увидите свою команду с новой стороны.</p>
             </div>
             <div class="why-card fade-up">
-                <div class="why-icon">&#129302;</div>
+                <div class="why-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5L14 12H10l0-2.5A4 4 0 0 1 12 2z"/><line x1="10" y1="14" x2="14" y2="14"/><line x1="10" y1="16" x2="14" y2="16"/><path d="M11 18h2"/></svg></div>
                 <h3>Осваивают ИИ на практике</h3>
                 <p>После &laquo;Фабрики&raquo; каждый участник понимает, как нейросети могут помочь в его повседневных задачах. Не по инструкциям &mdash; на деле.</p>
             </div>
         </div>
     </div>
+    <div class="geo-shape geo-diamond" style="top: 10%; left: 5%;"></div>
 </section>
 
 <!-- ROLES -->
 <section id="roles" style="background: var(--dark-card); border-top: 1px solid rgba(108,92,231,0.08); border-bottom: 1px solid rgba(108,92,231,0.08);">
     <div class="container">
-        <div class="section-label">&#128101; Роли</div>
+        <div class="section-label">Роли</div>
         <h2 class="section-title">Три роли &mdash; каждый вносит вклад</h2>
         <p class="section-desc">Деление на роли убирает проблему &laquo;все отвечают за всё, а по факту никто ни за что&raquo;. Каждый знает свою зону.</p>
         <div class="roles-grid">
             <div class="role-card fade-up">
-                <div class="role-emoji">&#127912;</div>
+                <div class="role-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
                 <div class="role-name">Креаторы</div>
                 <p class="role-desc">Придумывают идею, прорабатывают сценарии, создают прототип интерфейса вместе с ИИ</p>
                 <ul class="role-skills">
@@ -969,7 +1150,7 @@
                 </ul>
             </div>
             <div class="role-card fade-up">
-                <div class="role-emoji">&#128227;</div>
+                <div class="role-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
                 <div class="role-name">Маркетологи</div>
                 <p class="role-desc">Разрабатывают концепцию продвижения, готовят питч-презентацию, выступают перед аудиторией</p>
                 <ul class="role-skills">
@@ -979,7 +1160,7 @@
                 </ul>
             </div>
             <div class="role-card fade-up">
-                <div class="role-emoji">&#9881;&#65039;</div>
+                <div class="role-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
                 <div class="role-name">Инженеры</div>
                 <p class="role-desc">Осваивают ИИ-инструменты, собирают код продукта, тестируют и запускают сервис</p>
                 <ul class="role-skills">
@@ -990,16 +1171,18 @@
             </div>
         </div>
     </div>
+    <div class="geo-shape geo-tri" style="bottom: 10%; right: 6%;"></div>
 </section>
 
 <!-- TIMELINE -->
 <section id="how">
     <div class="container">
-        <div class="section-label">&#9201; Как проходит</div>
+        <div class="section-label">Как проходит</div>
         <h2 class="section-title">3 часа от идеи до питчинга</h2>
         <p class="section-desc">Чёткая структура, кураторы на каждую команду, продуманный тайминг &mdash; всё, чтобы за ограниченное время получить максимальный результат.</p>
 
-        <div class="timeline">
+        <div class="timeline" id="timeline">
+            <div class="timeline-glow-dot" id="timelineGlowDot"></div>
             <div class="timeline-item fade-up">
                 <div class="timeline-dot">1</div>
                 <div class="timeline-content">
@@ -1039,57 +1222,58 @@
         </div>
 
         <div class="victory-banner fade-up">
-            <h3>&#127942; Как определяется победитель?</h3>
+            <h3>Как определяется победитель?</h3>
             <p>Выигрывает команда, чей продукт откроет наибольшее количество участников мероприятия. Не жюри. Не аплодисменты. Конкретное действие &mdash; люди переходят по ссылке и начинают пользоваться.</p>
         </div>
     </div>
+    <div class="geo-shape geo-hex" style="bottom: 15%; left: 3%;"></div>
 </section>
 
 <!-- PRODUCTS -->
 <section style="background: var(--dark-card); border-top: 1px solid rgba(108,92,231,0.08); border-bottom: 1px solid rgba(108,92,231,0.08);">
     <div class="container">
-        <div class="section-label">&#128640; Продукты</div>
+        <div class="section-label">Продукты</div>
         <h2 class="section-title">Что создают команды</h2>
         <p class="section-desc">Не макеты в PowerPoint &mdash; это рабочий код, который запускается и делает то, что обещал.</p>
 
         <div class="products-grid">
             <div class="product-card fade-up">
-                <div class="product-icon">&#128202;</div>
+                <div class="product-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg></div>
                 <div>
                     <h4>Сметные калькуляторы</h4>
                     <p>Автоматизация расчётов для бухгалтерии и финансов</p>
                 </div>
             </div>
             <div class="product-card fade-up">
-                <div class="product-icon">&#128203;</div>
+                <div class="product-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></div>
                 <div>
                     <h4>Трекеры задач</h4>
                     <p>Планировщики и менеджеры проектов под нужды команды</p>
                 </div>
             </div>
             <div class="product-card fade-up">
-                <div class="product-icon">&#128200;</div>
+                <div class="product-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
                 <div>
                     <h4>Аналитические дашборды</h4>
                     <p>Визуализация данных продаж, маркетинга, операций</p>
                 </div>
             </div>
             <div class="product-card fade-up">
-                <div class="product-icon">&#129302;</div>
+                <div class="product-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
                 <div>
                     <h4>Боты-помощники</h4>
                     <p>Напоминалки, ассистенты, автоответчики</p>
                 </div>
             </div>
             <div class="product-card fade-up">
-                <div class="product-icon">&#128218;</div>
+                <div class="product-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
                 <div>
                     <h4>Базы знаний</h4>
                     <p>Внутренние справочники и порталы для сотрудников</p>
                 </div>
             </div>
             <div class="product-card fade-up">
-                <div class="product-icon">&#127775;</div>
+                <div class="product-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
                 <div>
                     <h4>Полезные сервисы</h4>
                     <p>Учёт привычек, советчики, генераторы рецептов</p>
@@ -1097,12 +1281,13 @@
             </div>
         </div>
     </div>
+    <div class="geo-shape geo-circle" style="top: 8%; left: 4%;"></div>
 </section>
 
 <!-- AI -->
 <section id="ai">
     <div class="container">
-        <div class="section-label">&#129504; Технология</div>
+        <div class="section-label">Технология</div>
         <h2 class="section-title">Нейросети &mdash; суперсила<br>каждой команды</h2>
         <p class="section-desc" style="margin-bottom: 0;">Участнику не нужно уметь программировать. Но это не значит, что всё делается &laquo;одной кнопкой&raquo;. Это полноценная работа &mdash; три часа обучения, экспериментов и доработок.</p>
 
@@ -1143,26 +1328,26 @@
 <!-- WHO -->
 <section style="background: var(--dark-card); border-top: 1px solid rgba(108,92,231,0.08); border-bottom: 1px solid rgba(108,92,231,0.08);">
     <div class="container">
-        <div class="section-label">&#127919; Для кого</div>
+        <div class="section-label">Для кого</div>
         <h2 class="section-title">Кому подходит программа</h2>
         <div class="who-grid">
             <div class="who-card fade-up">
-                <div class="who-card-icon">&#127970;</div>
+                <div class="who-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
                 <h4>Корпоративные тимбилдинги</h4>
                 <p>Когда нужен формат свежее, чем квесты и верёвочные парки, и хочется реального результата</p>
             </div>
             <div class="who-card fade-up">
-                <div class="who-card-icon">&#128101;</div>
+                <div class="who-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
                 <h4>HR-мероприятия</h4>
                 <p>Отличный формат для кросс-функциональных команд, где люди из разных отделов работают вместе впервые</p>
             </div>
             <div class="who-card fade-up">
-                <div class="who-card-icon">&#127908;</div>
+                <div class="who-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div>
                 <h4>Конференции и форумы</h4>
                 <p>Интерактивная секция, которая вовлекает участников сильнее любой панельной дискуссии</p>
             </div>
             <div class="who-card fade-up">
-                <div class="who-card-icon">&#128640;</div>
+                <div class="who-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
                 <h4>Стратегические сессии</h4>
                 <p>Когда нужно не просто &laquo;поговорить о цифровизации&raquo;, а дать людям потрогать её руками</p>
             </div>
@@ -1173,35 +1358,36 @@
 <!-- RESULTS -->
 <section id="results">
     <div class="container">
-        <div class="section-label">&#127873; Результат</div>
+        <div class="section-label">Результат</div>
         <h2 class="section-title">Что компания получает<br>после мероприятия</h2>
         <p class="section-desc">В отличие от большинства тимбилдингов, после &laquo;Фабрики стартапов&raquo; остаётся не только хорошее настроение.</p>
 
         <div class="results-list">
             <div class="result-item fade-up">
-                <div class="result-check">&#10003;</div>
+                <div class="result-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                 <p><strong>Работающие прототипы</strong> сервисов, которые можно внедрить в работу или доработать силами IT-отдела</p>
             </div>
             <div class="result-item fade-up">
-                <div class="result-check">&#10003;</div>
+                <div class="result-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                 <p><strong>Видеозаписи питчингов</strong> &mdash; готовый контент для внутренних коммуникаций</p>
             </div>
             <div class="result-item fade-up">
-                <div class="result-check">&#10003;</div>
+                <div class="result-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                 <p><strong>Карта идей сотрудников</strong> &mdash; что команда считает реальными проблемами и как предлагает их решать</p>
             </div>
             <div class="result-item fade-up">
-                <div class="result-check">&#10003;</div>
+                <div class="result-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                 <p><strong>Практический опыт работы с ИИ</strong> у каждого участника</p>
             </div>
         </div>
     </div>
+    <div class="geo-shape geo-diamond" style="bottom: 8%; right: 5%;"></div>
 </section>
 
 <!-- FAQ -->
 <section style="background: var(--dark-card); border-top: 1px solid rgba(108,92,231,0.08); border-bottom: 1px solid rgba(108,92,231,0.08);">
     <div class="container">
-        <div class="section-label">&#10067; FAQ</div>
+        <div class="section-label">FAQ</div>
         <h2 class="section-title">Частые вопросы</h2>
 
         <div class="faq-list">
@@ -1248,24 +1434,24 @@
 <!-- AWARDS -->
 <section style="padding: 80px 0; text-align: center;">
     <div class="container">
-        <div class="section-label">&#127942; О нас</div>
+        <div class="section-label">О нас</div>
         <h2 class="section-title">Почему DoctorTeam</h2>
         <p class="section-desc" style="max-width: 720px; margin: 0 auto 48px;">14 лет мы создаём HR-события в&nbsp;России</p>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 720px; margin: 0 auto;">
             <div class="fade-up" style="background: var(--dark-card); border: 1px solid rgba(108,92,231,0.15); border-radius: 16px; padding: 32px 24px;">
-                <div style="font-size: 2rem; margin-bottom: 12px;">&#127942;</div>
+                <div class="award-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg></div>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;"><strong style="color: var(--text-main);">Лучший организатор</strong> мероприятий для персонала по&nbsp;версии АКМР</p>
             </div>
             <div class="fade-up" style="background: var(--dark-card); border: 1px solid rgba(108,92,231,0.15); border-radius: 16px; padding: 32px 24px;">
-                <div style="font-size: 2rem; margin-bottom: 12px;">&#127775;</div>
+                <div class="award-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Призёр премии <strong style="color: var(--text-main);">Многогранность</strong> в&nbsp;номинации лучших игровых решений</p>
             </div>
             <div class="fade-up" style="background: var(--dark-card); border: 1px solid rgba(108,92,231,0.15); border-radius: 16px; padding: 32px 24px;">
-                <div style="font-size: 2rem; margin-bottom: 12px;">&#127758;</div>
+                <div class="award-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Лауреат <strong style="color: var(--text-main);">BEA&nbsp;WORLD</strong> &mdash; самой престижной премии в&nbsp;мире за лучший тимбилдинг-проект</p>
             </div>
             <div class="fade-up" style="background: var(--dark-card); border: 1px solid rgba(108,92,231,0.15); border-radius: 16px; padding: 32px 24px;">
-                <div style="font-size: 2rem; margin-bottom: 12px;">&#127919;</div>
+                <div class="award-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></div>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Призёр <strong style="color: var(--text-main);">Baltic Event Awards</strong> за лучший сценарий и&nbsp;идею мероприятия</p>
             </div>
         </div>
@@ -1280,9 +1466,9 @@
             <p>Оставьте заявку &mdash; расскажем детали и адаптируем программу под ваши задачи</p>
             <a href="#" class="btn-primary" onclick="openModal(); return false;">Оставить заявку &rarr;</a>
             <div class="cta-contacts">
-                <div class="cta-contact-item">&#128222; +7(499) 340-8232</div>
-                <div class="cta-contact-item">&#128231; info@doctorteam.ru</div>
-                <div class="cta-contact-item">&#127760; doctorteam.ru</div>
+                <div class="cta-contact-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> +7(499) 340-8232</div>
+                <div class="cta-contact-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> info@doctorteam.ru</div>
+                <div class="cta-contact-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> doctorteam.ru</div>
             </div>
         </div>
     </div>
@@ -1404,11 +1590,21 @@ document.querySelectorAll('.faq-question').forEach(btn => {
     });
 });
 
-// Scroll animations
+// Scroll animations with stagger
 const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
+            // Check if this element is inside a grid for staggered reveal
+            const parent = entry.target.parentElement;
+            if (parent && (parent.classList.contains('why-grid') || parent.classList.contains('roles-grid') || parent.classList.contains('products-grid') || parent.classList.contains('who-grid') || parent.classList.contains('results-list') || parent.classList.contains('stats-grid'))) {
+                const siblings = Array.from(parent.querySelectorAll('.fade-up'));
+                const idx = siblings.indexOf(entry.target);
+                setTimeout(() => {
+                    entry.target.classList.add('visible');
+                }, idx * 100);
+            } else {
+                entry.target.classList.add('visible');
+            }
         }
     });
 }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
@@ -1427,6 +1623,158 @@ window.addEventListener('scroll', () => {
     }
     lastScroll = scroll;
 });
+
+// ===== PARTICLE CANVAS BACKGROUND =====
+(function() {
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const PARTICLE_COUNT = 40;
+    const CONNECT_DIST = 150;
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function createParticle() {
+        return {
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+            r: Math.random() * 2 + 1,
+            color: Math.random() > 0.5 ? 'rgba(108,92,231,0.4)' : 'rgba(0,210,211,0.4)'
+        };
+    }
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push(createParticle());
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.fill();
+
+            for (let j = i + 1; j < particles.length; j++) {
+                const p2 = particles[j];
+                const dx = p.x - p2.x;
+                const dy = p.y - p2.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < CONNECT_DIST) {
+                    const opacity = (1 - dist / CONNECT_DIST) * 0.15;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = `rgba(108,92,231,${opacity})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(animate);
+    }
+    animate();
+})();
+
+// ===== HERO PARALLAX =====
+(function() {
+    const hero = document.getElementById('hero-section');
+    window.addEventListener('scroll', () => {
+        const scroll = window.scrollY;
+        if (scroll < window.innerHeight) {
+            hero.style.backgroundPositionY = `calc(20% + ${scroll * 0.3}px)`;
+        }
+    });
+})();
+
+// ===== COUNTER ANIMATION FOR STATS =====
+(function() {
+    const statNumbers = document.querySelectorAll('.stat-number[data-count]');
+    let animated = new Set();
+
+    function animateCounter(el) {
+        const raw = el.getAttribute('data-count');
+        if (animated.has(el)) return;
+        animated.add(el);
+
+        if (raw === '100%') {
+            let current = 0;
+            const target = 100;
+            const step = () => {
+                current += 2;
+                if (current > target) current = target;
+                el.textContent = current + '%';
+                if (current < target) requestAnimationFrame(step);
+            };
+            step();
+        } else if (raw.includes('-')) {
+            const parts = raw.split('-');
+            const a = parseInt(parts[0]);
+            const b = parseInt(parts[1]);
+            let currentA = 0;
+            let currentB = 0;
+            const duration = 1200;
+            const startTime = performance.now();
+            const step = (now) => {
+                const progress = Math.min((now - startTime) / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3);
+                currentA = Math.round(a * ease);
+                currentB = Math.round(b * ease);
+                el.innerHTML = currentA + '\u2013' + currentB;
+                if (progress < 1) requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+        }
+    }
+
+    const statObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    statNumbers.forEach(el => statObserver.observe(el));
+})();
+
+// ===== TIMELINE GLOW DOT =====
+(function() {
+    const timeline = document.getElementById('timeline');
+    const glowDot = document.getElementById('timelineGlowDot');
+    if (!timeline || !glowDot) return;
+
+    const timelineItems = timeline.querySelectorAll('.timeline-item');
+
+    window.addEventListener('scroll', () => {
+        const rect = timeline.getBoundingClientRect();
+        const timelineTop = rect.top;
+        const timelineHeight = rect.height;
+        const viewportCenter = window.innerHeight * 0.5;
+
+        if (timelineTop < viewportCenter && timelineTop + timelineHeight > 0) {
+            glowDot.classList.add('active');
+            const progress = Math.max(0, Math.min(1, (viewportCenter - timelineTop) / timelineHeight));
+            const dotY = progress * timelineHeight;
+            glowDot.style.top = dotY + 'px';
+        } else {
+            glowDot.classList.remove('active');
+        }
+    });
+})();
 </script>
 
 </body>
