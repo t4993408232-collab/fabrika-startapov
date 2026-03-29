@@ -58,7 +58,7 @@
             width: 400px;
             height: 400px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(108,92,231,0.1) 0%, rgba(0,210,211,0.04) 40%, transparent 70%);
+            background: radial-gradient(circle, rgba(108,92,231,0.15) 0%, rgba(0,210,211,0.07) 40%, transparent 70%);
             pointer-events: none;
             z-index: 1;
             will-change: transform;
@@ -1668,7 +1668,7 @@ window.addEventListener('scroll', () => {
     const canvas = document.getElementById('particles');
     const ctx = canvas.getContext('2d');
     let particles = [];
-    const PARTICLE_COUNT = 30;
+    const PARTICLE_COUNT = 20;
     const CONNECT_DIST = 130;
     const MOUSE_RADIUS = 180;
     let mouse = { x: -9999, y: -9999 };
@@ -1751,25 +1751,6 @@ window.addEventListener('scroll', () => {
                 }
             }
 
-            // Connect to mouse (only closest particles)
-            if (distM < MOUSE_R2 * 2) {
-                const d = Math.sqrt(distM);
-                ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
-                ctx.lineTo(mouse.x, mouse.y);
-                ctx.strokeStyle = `rgba(0,210,211,${(1 - d / (MOUSE_RADIUS * 1.4)) * 0.2})`;
-                ctx.lineWidth = 0.6;
-                ctx.stroke();
-                ctx.lineWidth = 0.5;
-            }
-        }
-
-        // Small cursor dot
-        if (mouse.x > 0) {
-            ctx.beginPath();
-            ctx.arc(mouse.x, mouse.y, 3, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0,210,211,0.5)';
-            ctx.fill();
         }
 
         raf = requestAnimationFrame(animate);
@@ -1783,28 +1764,30 @@ window.addEventListener('scroll', () => {
     });
 })();
 
-// ===== CURSOR GLOW FOLLOWER (GPU-ACCELERATED) =====
+// ===== CURSOR GLOW FOLLOWER (MERGED INTO MAIN LOOP) =====
 (function() {
     const glow = document.getElementById('cursorGlow');
-    let tx = 0, ty = 0;
+    let gx = 0, gy = 0, tx = 0, ty = 0, active = false;
 
     document.addEventListener('mousemove', e => {
         tx = e.clientX;
         ty = e.clientY;
-        glow.classList.add('active');
+        if (!active) { active = true; glow.classList.add('active'); }
     });
     document.addEventListener('mouseleave', () => {
+        active = false;
         glow.classList.remove('active');
     });
 
-    let gx = 0, gy = 0;
-    function followCursor() {
-        gx += (tx - gx) * 0.1;
-        gy += (ty - gy) * 0.1;
-        glow.style.transform = `translate3d(${gx - 200}px, ${gy - 200}px, 0)`;
-        requestAnimationFrame(followCursor);
-    }
-    followCursor();
+    // Single rAF loop for glow
+    (function tick() {
+        if (active) {
+            gx += (tx - gx) * 0.12;
+            gy += (ty - gy) * 0.12;
+            glow.style.transform = `translate3d(${gx - 200}px, ${gy - 200}px, 0)`;
+        }
+        requestAnimationFrame(tick);
+    })();
 })();
 
 // ===== CLICK RIPPLE EFFECT =====
