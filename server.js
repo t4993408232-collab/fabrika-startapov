@@ -29,7 +29,7 @@ app.post('/api/lead', async (req, res) => {
   ].filter(Boolean).join('\n');
 
   // Send to Telegram bot
-  const TG_TOKEN = process.env.TG_BOT_TOKEN || '8703833785:AAEvTZO6jPo-PQYl0RNUE1ggzkY10LPNbRU';
+  const TG_TOKEN = process.env.TG_BOT_TOKEN || '8720223082:AAEu1Qvc2Dst_1IUyDqqrPw61VOEJC0rT-o';
   const TG_CHAT = process.env.TG_CHAT_ID || '363075534';
   if (TG_TOKEN && TG_CHAT) {
     try {
